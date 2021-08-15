@@ -58,6 +58,10 @@ public extension DiffableDataSourceSnapshot {
   func containsItem(_ item: Item) -> Bool {
     idForItem(item) != nil
   }
+    
+    func allItems() -> [Item] {
+        return Array(itemsForIds.values)
+    }
 
   /// Returns the number of children for the given parent item.
   /// - Parameter parentItem: Pass nil to retrieve the number of root items.
