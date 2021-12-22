@@ -52,7 +52,6 @@ public struct DiffableDataSourceSnapshot {
 }
 
 // MARK: - Public API
-
 public extension DiffableDataSourceSnapshot {
 
   /// Total number of stored items.
@@ -69,10 +68,6 @@ public extension DiffableDataSourceSnapshot {
   /// - Parameter item: The item to check.
   func containsItem(_ item: Item) -> Bool {
     getIDForItem(item) != nil
-  }
-    
-  func allItems() -> [Item] {
-    return Array(idsForItems.keys)
   }
 
   /// Returns the number of children for the given parent item.
@@ -343,7 +338,6 @@ public extension DiffableDataSourceSnapshot {
 }
 
 // MARK: - Internal API
-
 extension DiffableDataSourceSnapshot {
 
   /// A fully indexed Node representation for sorting / diffing. Contains an `indexPath`.
@@ -402,7 +396,6 @@ extension DiffableDataSourceSnapshot {
 }
 
 // MARK: - Private API
-
 private extension DiffableDataSourceSnapshot {
 
   /// Returns a node for the given identifier if available.

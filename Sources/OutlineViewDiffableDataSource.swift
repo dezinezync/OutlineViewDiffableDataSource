@@ -27,13 +27,13 @@ open class OutlineViewDiffableDataSource: NSObject, NSOutlineViewDataSource, NSO
     public var targetItem: Item
     
     /// Items being dragged.
-    public var draggedItems: [AnyObject]
-
+    public var draggedItems: [Item]
+    
     /// Proposed operation.
     public var operation: NSDragOperation
     
     /// Creates a new item drag-n-drop “proposal”.
-    public init(type: Type, targetItem: Item, draggedItems: [AnyObject], operation: NSDragOperation) {
+    public init(type: Type, targetItem: Item, draggedItems: [Item], operation: NSDragOperation) {
       self.type = type
       self.targetItem = targetItem
       self.draggedItems = draggedItems
@@ -44,8 +44,7 @@ open class OutlineViewDiffableDataSource: NSObject, NSOutlineViewDataSource, NSO
   /// Callbacks for drag-n-drop.
   public typealias DraggingHandlers = (
     validateDrop: (_ sender: OutlineViewDiffableDataSource, _ drop: ProposedDrop) -> ProposedDrop?,
-    acceptDrop: (_ sender: OutlineViewDiffableDataSource, _ drop: ProposedDrop) -> Bool,
-    draggedItem: (_ sender: OutlineViewDiffableDataSource, _ draggedItem: NSPasteboardItem) -> AnyObject?
+    acceptDrop: (_ sender: OutlineViewDiffableDataSource, _ drop: ProposedDrop) -> Bool
   )
   
   /// Assign non-nil value to enable drag-n-drop.
@@ -207,7 +206,6 @@ open class OutlineViewDiffableDataSource: NSObject, NSOutlineViewDataSource, NSO
 }
 
 // MARK: - Public API
-
 public extension OutlineViewDiffableDataSource {
   
   /// Returns current state of the data source.
@@ -345,7 +343,6 @@ public extension OutlineViewDiffableDataSource {
 }
 
 // MARK: - Private API
-
 private extension OutlineViewDiffableDataSource {
   
   /// Calculates proposed drop for the given input.
@@ -354,24 +351,14 @@ private extension OutlineViewDiffableDataSource {
           pasteboardItems.isEmpty == false else { return nil }
     
     // Retrieve dragged items
-    let draggedItems: [AnyObject] = pasteboardItems.compactMap { pasteboardItem in
-        if let propertyList = pasteboardItem.propertyList(forType: .itemID) as? String,
-           let itemId = DiffableDataSourceSnapshot.ItemID(uuidString: propertyList) {
-                return diffableSnapshot.itemForId(itemId)
-        }
-        else {
-            if let handlers = draggingHandlers {
-               return handlers.draggedItem(self, pasteboardItem)
-            }
-        }
-        
+    let draggedItems: [Item] = pasteboardItems.compactMap { pasteboardItem in
+      guard let itemId = pasteboardItem.string(forType: .itemID) else {
         return nil
       }
-        
+      return currentSnapshot.getItemForID(itemId)
     }
+    guard draggedItems.count == pasteboardItems.count else { return nil }
     
-      // guard draggedItems.count == pasteboardItems.count else { return nil }
-
     // Drop on the item
     let parentItem = item as? OutlineViewItem
     if index == NSOutlineViewDropOnItemIndex {
